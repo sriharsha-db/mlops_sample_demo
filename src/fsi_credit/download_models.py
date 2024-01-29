@@ -4,8 +4,6 @@ import mlflow
 import os
 from mlflow.models import Model
 
-# os.environ["DATABRICKS_HOST"] = "https://e2-demo-field-eng.cloud.databricks.com/"
-# os.environ["DATABRICKS_TOKEN"] = "dapi256320616f51fbf26deea1763195dbc8"
 mlflow.set_registry_uri("databricks-uc")
 
 uc_catalog = "uc_sriharsha_jana"
