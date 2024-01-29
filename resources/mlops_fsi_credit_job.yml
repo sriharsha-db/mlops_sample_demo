@@ -1,0 +1,52 @@
+# The main job for mlops_sample_demo.
+resources:
+  jobs:
+    mlops_fsi_credit_job:
+      name: mlops_fsi_credit_job
+
+#      schedule:
+#        # Run every day at 8:37 AM
+#        quartz_cron_expression: '44 37 8 * * ?'
+#        timezone_id: Europe/Amsterdam
+
+      email_notifications:
+        on_failure:
+          - sriharsha.jana@databricks.com
+
+      tasks:
+        - task_key: feature_processing
+          existing_cluster_id: 0104-092143-j3bwzyun
+          spark_python_task:
+            python_file: ../src/fsi_credit/feature_processing.py
+            parameters:
+              - --uc_catalog
+              - uc_sriharsha_jana
+              - --uc_schema
+              - fsi_credit_data
+
+        - task_key: model_training
+          existing_cluster_id: 0104-092143-j3bwzyun
+          depends_on:
+            - task_key: feature_processing
+          spark_python_task:
+            python_file: ../src/fsi_credit/model_training.py
+            parameters:
+              - --mlflow_exp_name
+              - /Users/sriharsha.jana@databricks.com/fsi_credit_experiment
+              - --uc_catalog
+              - uc_sriharsha_jana
+              - --uc_schema
+              - fsi_credit_data
+              - --feature_store
+              - credit_decision_fs
+              - --model_registry_name
+              - fsi_credit_defaulter
+
+#      job_clusters:
+#        - job_cluster_key: job_cluster
+#          new_cluster:
+#            spark_version: 14.2.x-cpu-ml-scala2.12
+#            node_type_id: i3.xlarge
+#            autoscale:
+#                min_workers: 1
+#                max_workers: 2
